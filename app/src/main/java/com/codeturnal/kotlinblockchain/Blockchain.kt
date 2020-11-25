@@ -13,28 +13,21 @@ class BlockChain {
         return minedBlock
     }
 
-    fun getBlock() : MutableList<Block> {
-        return blocks
-    }
-
-    fun getLastBlock() : Block {
-        return blocks.last()
-    }
-
     private fun isMined(block: Block) : Boolean {
         return block.hash.startsWith(validPrefix)
     }
 
     private fun mine(block: Block) : Block {
 
-        println("Mining: $block")
+        println("Block unMined: $block")
 
         var minedBlock = block.copy()
         while (!isMined(minedBlock)) {
             minedBlock = minedBlock.copy(nonce = minedBlock.nonce + 1)
+            println("Process Mining ${minedBlock.nonce}")
         }
 
-        println("Mined : $minedBlock")
+        println("Block Mined : $minedBlock")
 
         return minedBlock
     }
@@ -57,5 +50,13 @@ class BlockChain {
                 return true
             }
         }
+    }
+
+    fun getBlocks() : MutableList<Block> {
+        return blocks
+    }
+
+    fun getLastBlock() : Block {
+        return blocks.last()
     }
 }

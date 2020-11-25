@@ -9,26 +9,24 @@ import com.codeturnal.kotlinblockchainimport.BlockchainListAdapter
 import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity(), BlockchainListAdapter.Interaction {
-    private val blockChain = BlockChain()
-    private val genesisBlock = Block(previousHash = "null", data = "Block Pertama")
-    lateinit var listAdapter: BlockchainListAdapter
 
+    private val blockChain = BlockChain()
     lateinit var blockList : List<Block>
+    lateinit var listAdapter: BlockchainListAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        blockChain.add(genesisBlock)
         setupRecyclerView()
 
-        blockList = blockChain.getBlock()
+        blockList = blockChain.getBlocks()
 
         listAdapter.submitList(blockList)
-        inputNewBlock()
+        onClickButtonSend()
     }
 
-    private fun inputNewBlock(){
+    private fun onClickButtonSend(){
         buttonSend.setOnClickListener {
             if (editTextMainMessage.text!!.isNotEmpty()) {
                 addNewBlock(editTextMainMessage.text.toString())
@@ -39,7 +37,6 @@ class MainActivity : AppCompatActivity(), BlockchainListAdapter.Interaction {
 
     private fun dismissKeyboardAndSetEditTextToBlank(){
         editTextMainMessage.setText("")
-
         try {
             val imm: InputMethodManager = getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
             imm.hideSoftInputFromWindow(currentFocus!!.windowToken, 0)
@@ -49,17 +46,23 @@ class MainActivity : AppCompatActivity(), BlockchainListAdapter.Interaction {
     }
 
     private fun addNewBlock(message: String) {
-        if (blockChain.isValid()) {
+        if (blockChain.isValid() && blockList.isNotEmpty()) {
             val addedBlock = Block(blockChain.getLastBlock().hash, message)
             blockChain.add(addedBlock)
-            blockList = blockChain.getBlock()
+            blockList = blockChain.getBlocks()
 
             notifyAdapterAndScrollToAddedData()
+        } else {
+            val addedBlock = Block("0", message)
+            blockChain.add(addedBlock)
+            blockList = blockChain.getBlocks()
         }
     }
 
     private fun notifyAdapterAndScrollToAddedData(){
         listAdapter.notifyDataSetChanged()
+
+        if (blockList.isNotEmpty())
         recyclerViewMain.smoothScrollToPosition(blockList.size - 1)
     }
 
